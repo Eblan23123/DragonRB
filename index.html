@@ -202,6 +202,8 @@
         .card:nth-child(10) { animation-delay: 0.5s; }
         .card:nth-child(11) { animation-delay: 0.55s; }
         .card:nth-child(12) { animation-delay: 0.6s; }
+        .card:nth-child(13) { animation-delay: 0.65s; }
+        .card:nth-child(14) { animation-delay: 0.7s; }
 
         @keyframes fadeIn {
             to { opacity: 1; }
@@ -252,6 +254,101 @@
             line-height: 1.5;
         }
 
+        /* Блок комментариев */
+        .comments-section {
+            margin-top: 5rem;
+            border-top: 1px solid #1e1e28;
+            padding-top: 2.5rem;
+        }
+        .comments-title {
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #bcbcd4;
+            border-left: 3px solid #3a3a50;
+            padding-left: 1rem;
+        }
+        .comment-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+        .comment-input {
+            background: #12121a;
+            border: 1px solid #2a2a38;
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            color: #ddd;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+            flex: 1 1 200px;
+        }
+        .comment-input:focus {
+            border-color: #5a5a7a;
+        }
+        .comment-textarea {
+            flex: 2 1 300px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        .comment-submit {
+            background: #1a1a2e;
+            border: 1px solid #3a3a50;
+            border-radius: 12px;
+            padding: 0.8rem 1.8rem;
+            font-weight: 500;
+            color: #ccc;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            background: #15152a;
+            white-space: nowrap;
+        }
+        .comment-submit:hover {
+            background: #252540;
+            border-color: #6a6a8e;
+            color: #fff;
+        }
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        .comment-item {
+            background: #0e0e14;
+            border: 1px solid #1c1c26;
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+            animation: fadeIn 0.3s ease;
+        }
+        .comment-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #6a6a80;
+            margin-bottom: 0.4rem;
+        }
+        .comment-author {
+            font-weight: 600;
+            color: #9a9ab8;
+        }
+        .comment-text {
+            color: #b0b0c0;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        .loading-comments {
+            color: #5a5a70;
+            font-style: italic;
+            padding: 1rem 0;
+        }
+
         footer {
             margin-top: 3rem;
             border-top: 1px solid #1a1a24;
@@ -290,6 +387,9 @@
             }
             .section-title {
                 font-size: 1.3rem;
+            }
+            .comment-form {
+                flex-direction: column;
             }
         }
     </style>
@@ -330,6 +430,19 @@
                 <h2 class="section-title"><span class="emoji">🌟</span> <span data-i18n="section_good">Живые места</span></h2>
                 <div class="cards-grid" id="cards-good"></div>
             </section>
+
+            <!-- Секция комментариев -->
+            <section class="comments-section">
+                <h2 class="comments-title" data-i18n="comments_title">💬 Комментарии</h2>
+                <div class="comment-form" id="commentForm">
+                    <input type="text" class="comment-input" id="commentName" placeholder="Ваше имя / Your name" maxlength="40">
+                    <textarea class="comment-input comment-textarea" id="commentText" placeholder="Ваш комментарий / Your comment" maxlength="500"></textarea>
+                    <button class="comment-submit" id="submitComment">Отправить</button>
+                </div>
+                <div class="comments-list" id="commentsList">
+                    <div class="loading-comments">Загрузка комментариев...</div>
+                </div>
+            </section>
         </main>
 
         <footer>
@@ -345,6 +458,10 @@
 
     <script>
         (function() {
+            // URL вашего Google Apps Script
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkV42kw9XWgIJHS-_Jh1Qs8onT7aj75BgUNQ9eMWMYOL0L49wfm14eWcPw8KOok7WieQ/exec';
+
+            // Данные игр с добавленными новыми
             const contentData = {
                 ru: {
                     sections: {
@@ -364,7 +481,10 @@
                             { title: "Speed City", desc: "Лучшие двигатели и нитро за Robux. Без оплаты ты медленный." },
                             { title: "My Restaurant Tycoon", desc: "Премиум-повара и декор за деньги. Бесплатно — вечный фастфуд." },
                             { title: "Pet Ranch Simulator", desc: "Редкие животные только в платных яйцах. Бесплатные не прокачать." },
-                            { title: "Boxing Simulator", desc: "Сильные перчатки и усиления в магазине Robux. Фарм без доната страдает." }
+                            { title: "Boxing Simulator", desc: "Сильные перчатки и усиления в магазине Robux. Фарм без доната страдает." },
+                            { title: "VIP Island Resort", desc: "Доступ к лучшим зонам только через VIP-пропуск за Robux." },
+                            { title: "Dragon Battle Sim", desc: "Мощные драконы в платных сундуках. Бесплатные слабые." },
+                            { title: "Mega Tycoon World", desc: "Ускорители и редкие предметы исключительно за донат." }
                         ],
                         grindy: [
                             { title: "Mining Madness", desc: "Копаешь часами ради +1 к силе. Таймеры на всё." },
@@ -377,7 +497,10 @@
                             { title: "Tree Farm Simulator", desc: "Руби деревья, жди рост, снова руби. Однообразно и долго." },
                             { title: "Sword Fighters Simulator", desc: "Маши мечом в одной комнате. Уровни требуют тысяч убийств." },
                             { title: "Magnet Simulator", desc: "Собирай хлам крутя магнитом. Прогресс микроскопический." },
-                            { title: "Clicker Mining Simulator", desc: "Кликай по руде бесконечно. Автокликер спасает, но гринд вечен." }
+                            { title: "Clicker Mining Simulator", desc: "Кликай по руде бесконечно. Автокликер спасает, но гринд вечен." },
+                            { title: "Lumberjack Simulator 2", desc: "Руби деревья, таскай брёвна, улучшай топор сотнями циклов." },
+                            { title: "Farm Life Simulator", desc: "Сажай, поливай, жди урожай. Бесконечный цикл без конца." },
+                            { title: "Gem Tycoon", desc: "Копай самоцветы с мизерным шансом на редкие. Донат лишь ускоряет гринд." }
                         ],
                         good: [
                             { title: "Arsenal", desc: "Шутер с кучей оружия, быстрые раунды, ноль доната." },
@@ -390,7 +513,10 @@
                             { title: "Juke's Towers of Hell", desc: "Хардкорные башни-платформеры. Комьюнити, без доната." },
                             { title: "Bad Business", desc: "Динамичный шутер с кастомизацией. Только скин, не влияет на бой." },
                             { title: "Flee the Facility", desc: "Асимметричный хоррор: взлом и погоня. Напряжённые раунды." },
-                            { title: "Horrific Housing", desc: "Безумные мини-игры на выживание. Чистое веселье без прокачки." }
+                            { title: "Horrific Housing", desc: "Безумные мини-игры на выживание. Чистое веселье без прокачки." },
+                            { title: "Rogue Lineage", desc: "Хардкорная RPG с перманентной смертью. Глубокая механика, без доната." },
+                            { title: "Blackhawk Rescue Mission 5", desc: "Военный симулятор с открытым миром. Реализм, кооператив." },
+                            { title: "Loomian Legacy", desc: "Клон Pokémon с сюжетом. Никакого pay-to-win, только геймплей." }
                         ]
                     }
                 },
@@ -412,7 +538,10 @@
                             { title: "Speed City", desc: "Top engines and nitro cost Robux. Free players stay slow." },
                             { title: "My Restaurant Tycoon", desc: "Premium chefs and decor for cash. Free means eternal fast food." },
                             { title: "Pet Ranch Simulator", desc: "Rare animals only in paid eggs. Free ones can't compete." },
-                            { title: "Boxing Simulator", desc: "Strong gloves and boosts in Robux shop. Grind suffers without payment." }
+                            { title: "Boxing Simulator", desc: "Strong gloves and boosts in Robux shop. Grind suffers without payment." },
+                            { title: "VIP Island Resort", desc: "Access to best areas only via VIP pass for Robux." },
+                            { title: "Dragon Battle Sim", desc: "Powerful dragons in paid chests. Free ones are weak." },
+                            { title: "Mega Tycoon World", desc: "Boosters and rare items exclusively for donors." }
                         ],
                         grindy: [
                             { title: "Mining Madness", desc: "Dig for hours for +1 strength. Timers everywhere." },
@@ -425,7 +554,10 @@
                             { title: "Tree Farm Simulator", desc: "Chop trees, wait regrowth, repeat. Monotonous and long." },
                             { title: "Sword Fighters Simulator", desc: "Swing sword in one room. Levels demand thousands of kills." },
                             { title: "Magnet Simulator", desc: "Collect junk with magnet. Microscopic progress." },
-                            { title: "Clicker Mining Simulator", desc: "Click ore endlessly. Autoclicker helps, grind remains eternal." }
+                            { title: "Clicker Mining Simulator", desc: "Click ore endlessly. Autoclicker helps, grind remains eternal." },
+                            { title: "Lumberjack Simulator 2", desc: "Chop trees, haul logs, upgrade axe through hundreds of cycles." },
+                            { title: "Farm Life Simulator", desc: "Plant, water, wait for harvest. Endless cycle, no endgame." },
+                            { title: "Gem Tycoon", desc: "Dig gems with tiny rare chance. Donation only speeds up the unavoidable grind." }
                         ],
                         good: [
                             { title: "Arsenal", desc: "Shooter with huge gun variety. Fast rounds, zero P2W." },
@@ -438,13 +570,16 @@
                             { title: "Juke's Towers of Hell", desc: "Hardcore tower platformers. Community-driven, donation-free." },
                             { title: "Bad Business", desc: "Fast-paced shooter with customization. Cosmetics only, fair play." },
                             { title: "Flee the Facility", desc: "Asymmetric horror: hack and chase. Tense rounds." },
-                            { title: "Horrific Housing", desc: "Crazy survival mini-games. Pure fun, zero progression." }
+                            { title: "Horrific Housing", desc: "Crazy survival mini-games. Pure fun, zero progression." },
+                            { title: "Rogue Lineage", desc: "Hardcore RPG with permadeath. Deep mechanics, no P2W." },
+                            { title: "Blackhawk Rescue Mission 5", desc: "Military sim with open world. Realism, co-op." },
+                            { title: "Loomian Legacy", desc: "Pokémon-like with story. No pay-to-win, pure gameplay." }
                         ]
                     }
                 }
             };
 
-            const STORAGE_KEY = 'roblox_hub_lang_v3';
+            const STORAGE_KEY = 'roblox_hub_lang_v4';
             const modal = document.getElementById('languageModal');
             const headerButtons = document.querySelectorAll('.lang-option');
 
@@ -495,6 +630,7 @@
                 }
             }
 
+            // Инициализация языка
             const savedLang = localStorage.getItem(STORAGE_KEY);
             if (savedLang && (savedLang === 'ru' || savedLang === 'en')) {
                 applyLanguage(savedLang);
@@ -518,6 +654,112 @@
                     if (lang) applyLanguage(lang);
                 });
             });
+
+            // ======================
+            // ЛОГИКА КОММЕНТАРИЕВ
+            // ======================
+            const commentsList = document.getElementById('commentsList');
+            const commentForm = document.getElementById('commentForm');
+            const nameInput = document.getElementById('commentName');
+            const textInput = document.getElementById('commentText');
+            const submitBtn = document.getElementById('submitComment');
+
+            // Загрузка комментариев с сервера
+            async function loadComments() {
+                try {
+                    commentsList.innerHTML = '<div class="loading-comments">Загрузка комментариев...</div>';
+                    const response = await fetch(SCRIPT_URL + '?action=get');
+                    if (!response.ok) throw new Error('Network error');
+                    const data = await response.json();
+                    if (Array.isArray(data)) {
+                        renderComments(data);
+                    } else if (data && data.comments) {
+                        renderComments(data.comments);
+                    } else {
+                        commentsList.innerHTML = '<div class="loading-comments">Нет комментариев. Будьте первым!</div>';
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки комментариев:', error);
+                    commentsList.innerHTML = '<div class="loading-comments">Не удалось загрузить комментарии. Проверьте соединение.</div>';
+                }
+            }
+
+            function renderComments(comments) {
+                if (!comments.length) {
+                    commentsList.innerHTML = '<div class="loading-comments">Пока нет комментариев.</div>';
+                    return;
+                }
+                commentsList.innerHTML = comments.map(c => {
+                    const name = escapeHtml(c.name || 'Аноним');
+                    const text = escapeHtml(c.comment || c.text || '');
+                    const date = c.date || c.timestamp || '';
+                    const formattedDate = date ? new Date(date).toLocaleString() : '';
+                    return `
+                        <div class="comment-item">
+                            <div class="comment-meta">
+                                <span class="comment-author">${name}</span>
+                                <span>${formattedDate}</span>
+                            </div>
+                            <div class="comment-text">${text}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            async function submitComment() {
+                const name = nameInput.value.trim();
+                const text = textInput.value.trim();
+                if (!name || !text) {
+                    alert('Заполните имя и текст комментария.');
+                    return;
+                }
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'add');
+                    formData.append('name', name);
+                    formData.append('comment', text);
+                    // также можно добавить timestamp, но Google Script сам может поставить
+
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!response.ok) throw new Error('Network error');
+                    const result = await response.json();
+                    if (result && (result.success || result.result === 'success')) {
+                        nameInput.value = '';
+                        textInput.value = '';
+                        await loadComments(); // перезагружаем список
+                    } else {
+                        alert('Ошибка при отправке. Попробуйте позже.');
+                    }
+                } catch (error) {
+                    console.error('Ошибка отправки:', error);
+                    alert('Не удалось отправить комментарий.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Отправить';
+                }
+            }
+
+            commentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitComment();
+            });
+
+            // Загружаем комментарии при старте
+            loadComments();
         })();
     </script>
 </body>
