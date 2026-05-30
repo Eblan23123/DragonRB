@@ -312,7 +312,7 @@
             border-color: #6a6a8e;
             color: #fff;
         }
-        .comments-list {
+        .comments-container {
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -434,12 +434,12 @@
             <!-- Секция комментариев -->
             <section class="comments-section">
                 <h2 class="comments-title" data-i18n="comments_title">💬 Комментарии</h2>
-                <div class="comment-form" id="commentForm">
+                <div class="comment-form" id="comment-form">
                     <input type="text" class="comment-input" id="commentName" placeholder="Ваше имя / Your name" maxlength="40">
                     <textarea class="comment-input comment-textarea" id="commentText" placeholder="Ваш комментарий / Your comment" maxlength="500"></textarea>
                     <button class="comment-submit" id="submitComment">Отправить</button>
                 </div>
-                <div class="comments-list" id="commentsList">
+                <div class="comments-container" id="comments-container">
                     <div class="loading-comments">Загрузка комментариев...</div>
                 </div>
             </section>
@@ -458,10 +458,12 @@
 
     <script>
         (function() {
-            // URL вашего Google Apps Script
+            // ======================
+            // НАСТРОЙКИ
+            // ======================
             const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkV42kw9XWgIJHS-_Jh1Qs8onT7aj75BgUNQ9eMWMYOL0L49wfm14eWcPw8KOok7WieQ/exec';
 
-            // Данные игр с добавленными новыми
+            // Данные игр
             const contentData = {
                 ru: {
                     sections: {
@@ -630,7 +632,6 @@
                 }
             }
 
-            // Инициализация языка
             const savedLang = localStorage.getItem(STORAGE_KEY);
             if (savedLang && (savedLang === 'ru' || savedLang === 'en')) {
                 applyLanguage(savedLang);
@@ -658,16 +659,15 @@
             // ======================
             // ЛОГИКА КОММЕНТАРИЕВ
             // ======================
-            const commentsList = document.getElementById('commentsList');
-            const commentForm = document.getElementById('commentForm');
+            const commentsContainer = document.getElementById('comments-container');
+            const commentForm = document.getElementById('comment-form');
             const nameInput = document.getElementById('commentName');
             const textInput = document.getElementById('commentText');
             const submitBtn = document.getElementById('submitComment');
 
-            // Загрузка комментариев с сервера
             async function loadComments() {
                 try {
-                    commentsList.innerHTML = '<div class="loading-comments">Загрузка комментариев...</div>';
+                    commentsContainer.innerHTML = '<div class="loading-comments">Загрузка комментариев...</div>';
                     const response = await fetch(SCRIPT_URL + '?action=get');
                     if (!response.ok) throw new Error('Network error');
                     const data = await response.json();
@@ -676,20 +676,20 @@
                     } else if (data && data.comments) {
                         renderComments(data.comments);
                     } else {
-                        commentsList.innerHTML = '<div class="loading-comments">Нет комментариев. Будьте первым!</div>';
+                        commentsContainer.innerHTML = '<div class="loading-comments">Нет комментариев. Будьте первым!</div>';
                     }
                 } catch (error) {
                     console.error('Ошибка загрузки комментариев:', error);
-                    commentsList.innerHTML = '<div class="loading-comments">Не удалось загрузить комментарии. Проверьте соединение.</div>';
+                    commentsContainer.innerHTML = '<div class="loading-comments">Не удалось загрузить комментарии. Проверьте соединение.</div>';
                 }
             }
 
             function renderComments(comments) {
                 if (!comments.length) {
-                    commentsList.innerHTML = '<div class="loading-comments">Пока нет комментариев.</div>';
+                    commentsContainer.innerHTML = '<div class="loading-comments">Пока нет комментариев.</div>';
                     return;
                 }
-                commentsList.innerHTML = comments.map(c => {
+                commentsContainer.innerHTML = comments.map(c => {
                     const name = escapeHtml(c.name || 'Аноним');
                     const text = escapeHtml(c.comment || c.text || '');
                     const date = c.date || c.timestamp || '';
@@ -729,7 +729,6 @@
                     formData.append('action', 'add');
                     formData.append('name', name);
                     formData.append('comment', text);
-                    // также можно добавить timestamp, но Google Script сам может поставить
 
                     const response = await fetch(SCRIPT_URL, {
                         method: 'POST',
@@ -740,7 +739,7 @@
                     if (result && (result.success || result.result === 'success')) {
                         nameInput.value = '';
                         textInput.value = '';
-                        await loadComments(); // перезагружаем список
+                        await loadComments();
                     } else {
                         alert('Ошибка при отправке. Попробуйте позже.');
                     }
@@ -758,7 +757,7 @@
                 submitComment();
             });
 
-            // Загружаем комментарии при старте
+            // Первичная загрузка комментариев
             loadComments();
         })();
     </script>
